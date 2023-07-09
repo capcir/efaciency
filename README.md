@@ -1,10 +1,17 @@
 # efaciency
 
-A package to simplify working with EFA days in the GB electricity trading system.
+A package to simplify working with EFA blocks and settlement periods in the GB electricity trading system.
+
+## Installation
+
+This package can be installed via pip:
+```bash
+$ pip install efaciency
+```
 
 ## Quick start
 
-Define settlement periods and get the corresponding half-hour datetime.
+Define a settlement period and get the corresponding half-hour datetime.
 ```python
 >>> from datetime import date
 >>> from efaciency import SettlementPeriod
@@ -41,3 +48,11 @@ Define EFA blocks and get the corresponding start and end datetimes.
 >>> efa["end_ts"].strftime("%Y-%m-%d %H:%M")
 '2023-07-01 11:00'
 ```
+
+## Contribution
+
+Please make a pull request or log an issue on GitHub.
+
+## License
+
+Code is released as free software under the MIT License (see `LICENSE` file).

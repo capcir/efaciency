@@ -4,5 +4,14 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "efaciency"
-authors = []
+authors = [{name = "Matthieu Paturet"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
+dependencies = [
+    "pytz",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/capcir/efaciency"

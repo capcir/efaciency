@@ -1,6 +1,5 @@
 black
 coverage
 flit
-pylint
 pytest
 pytz
