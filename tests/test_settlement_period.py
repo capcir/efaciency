@@ -10,10 +10,6 @@ def test_settlement_period_creation():
     )
     sp2 = efaciency.SettlementPeriod(ts=datetime(2023, 7, 1, 11))
     assert sp1 == sp2
-    assert (
-        sp2.__repr__()
-        == "SettlementPeriod(ts=2023-07-01T11:00, settlement_date=2023-07-01, settlement_period=23, efa_date=2023-07-01, efa_block=4)"
-    )
 
 
 def test_settlement_period_range():

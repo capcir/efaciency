@@ -2,7 +2,9 @@
 
 from datetime import date, datetime, timedelta
 
-from efaciency.constants import LOCAL_TZ
+import pytz
+
+LOCAL_TZ = pytz.timezone("Europe/London")
 
 
 def convert_to_local(ts: datetime) -> datetime:
@@ -40,3 +42,15 @@ def get_ts(settlement_date: date, settlement_period: int) -> datetime:
     """Get datetime from settlement date and settlement period."""
     origin = convert_to_local(datetime.combine(settlement_date, datetime.min.time()))
     return origin + timedelta(hours=(settlement_period - 1) / 2)
+
+
+def get_efa_start_time(efa_date: date, efa_block: int) -> datetime:
+    """Get EFA start time from EFA date and EFA block."""
+    origin = convert_to_local(datetime.combine(efa_date, datetime.min.time())) - timedelta(hours=1)
+    return origin + timedelta(hours=(efa_block - 1) * 4)
+
+
+def get_efa_end_time(efa_date: date, efa_block: int) -> datetime:
+    """Get EFA end time from EFA date and EFA block."""
+    origin = convert_to_local(datetime.combine(efa_date, datetime.min.time())) - timedelta(hours=1)
+    return origin + timedelta(hours=efa_block * 4)

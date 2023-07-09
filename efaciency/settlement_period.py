@@ -1,7 +1,7 @@
 """efaciency settlement_period"""
 
 from datetime import date, datetime, timedelta
-from typing import List
+from typing import List, Dict, Any
 
 from efaciency.utils import (
     convert_to_local,
@@ -13,12 +13,14 @@ from efaciency.utils import (
 )
 
 
-class SettlementPeriod:
+class SettlementPeriod(Dict[str, Any]):
     def __init__(
         self,
         settlement_date: date = None,
         settlement_period: int = None,
         ts: datetime = None,
+        efa_date: date = None,
+        efa_block: date = None,
     ):
         """A settlement period object with all info regarding the corresponding half hour.
 
@@ -27,38 +29,41 @@ class SettlementPeriod:
             settlement_period -- settlement period (default: {None})
             ts -- half hour datetime (default: {None})
         """
-        self.settlement_date = settlement_date
-        self.settlement_period = settlement_period
-        self.ts = ts
-        if self.ts is not None:
-            self.ts = convert_to_local(self.ts)
-        self.efa_date: date
-        self.efa_block: int
-        self.calculate()
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-    def __repr__(self) -> str:
-        return (
-            f"SettlementPeriod(ts={self.ts.strftime('%Y-%m-%dT%H:%M')}, "
-            + f"settlement_date={self.settlement_date}, "
-            + f"settlement_period={self.settlement_period}, "
-            + f"efa_date={self.efa_date}, "
-            + f"efa_block={self.efa_block})"
+        super().__init__(
+            settlement_date=settlement_date,
+            settlement_period=settlement_period,
+            ts=ts,
+            efa_date=efa_date,
+            efa_block=efa_block,
         )
+        if self.__getitem__("ts") is not None:
+            self.__setitem__("ts", convert_to_local(self.__getitem__("ts")))
+        self._calculate()
 
-    def calculate(self):
-        """Set all attributes based on __init__ args."""
-        if self.ts is not None:
-            self.settlement_date = get_settlement_date(self.ts)
-            self.settlement_period = get_settlement_period(self.ts)
-            self.efa_date = get_efa_date(self.ts)
-            self.efa_block = get_efa_block(self.ts)
-        elif self.settlement_date is not None and self.settlement_period is not None:
-            self.ts = get_ts(self.settlement_date, self.settlement_period)
-            self.efa_date = get_efa_date(self.ts)
-            self.efa_block = get_efa_block(self.ts)
+    def _calculate(self):
+        """Calculate any missing items based on provided arguments."""
+        if self.__getitem__("ts") is not None:
+            self.__setitem__(
+                "settlement_date", get_settlement_date(self.__getitem__("ts"))
+            )
+            self.__setitem__(
+                "settlement_period", get_settlement_period(self.__getitem__("ts"))
+            )
+            self.__setitem__("efa_date", get_efa_date(self.__getitem__("ts")))
+            self.__setitem__("efa_block", get_efa_block(self.__getitem__("ts")))
+        elif (
+            self.__getitem__("settlement_date") is not None
+            and self.__getitem__("settlement_period") is not None
+        ):
+            self.__setitem__(
+                "ts",
+                get_ts(
+                    self.__getitem__("settlement_date"),
+                    self.__getitem__("settlement_period"),
+                ),
+            )
+            self.__setitem__("efa_date", get_efa_date(self.__getitem__("ts")))
+            self.__setitem__("efa_block", get_efa_block(self.__getitem__("ts")))
 
 
 def settlement_period_range(
