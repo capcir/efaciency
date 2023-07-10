@@ -5,6 +5,7 @@ from typing import List, Dict, Any
 
 from efaciency.utils import (
     convert_to_local,
+    convert_to_utc,
     get_efa_block,
     get_efa_date,
     get_settlement_date,
@@ -67,31 +68,64 @@ class SettlementPeriod(Dict[str, Any]):
 
 
 def settlement_period_range(
-    from_efa_date: date, to_efa_date: date, inclusive: bool = True
+    from_efa_date: date = None,
+    to_efa_date: date = None,
+    from_settlement_date: date = None,
+    to_settlement_date: date = None,
+    inclusive: bool = True,
 ) -> List[SettlementPeriod]:
-    """Create a half-hourly range of settlement periods between two EFA dates.
+    """Create a half-hourly range of settlement periods between two EFA or settlement dates.
 
     Arguments:
-        from_efa_date -- from EFA date
-        to_efa_date -- to EFA date
+        from_efa_date -- from EFA date (default: {None})
+        to_efa_date -- to EFA date (default: {None})
+        from_settlement_date -- from settlement date (default: {None})
+        to_settlement_date -- to settlement date (default: {None})
 
     Keyword Arguments:
-        inclusive -- include to_efa_date in range (default: {True})
+        inclusive -- include to date in range (default: {True})
 
     Returns:
         list of settlement periods
     """
-    start = convert_to_local(
-        datetime.combine(from_efa_date, datetime.min.time()) - timedelta(hours=1)
-    )
-    if inclusive:
-        end = convert_to_local(
-            datetime.combine(to_efa_date, datetime.min.time()) + timedelta(hours=23)
+    if all(
+        arg is None
+        for arg in [
+            from_efa_date,
+            to_efa_date,
+            from_settlement_date,
+            to_settlement_date,
+        ]
+    ):
+        raise ValueError("need to provide a start and end EFA or settlement date")
+    if from_efa_date is not None:
+        assert to_efa_date is not None
+        assert from_settlement_date is None
+        assert to_settlement_date is None
+        start = datetime.combine(from_efa_date, datetime.min.time()) - timedelta(
+            hours=1
         )
-    else:
-        end = convert_to_local(
-            datetime.combine(to_efa_date, datetime.min.time()) - timedelta(hours=1)
-        )
+        if inclusive:
+            end = datetime.combine(to_efa_date, datetime.min.time()) + timedelta(
+                hours=23
+            )
+        else:
+            end = datetime.combine(to_efa_date, datetime.min.time()) - timedelta(
+                hours=1
+            )
+    if from_settlement_date is not None:
+        assert to_settlement_date is not None
+        assert from_efa_date is None
+        assert to_efa_date is None
+        start = datetime.combine(from_settlement_date, datetime.min.time())
+        if inclusive:
+            end = datetime.combine(to_settlement_date, datetime.min.time()) + timedelta(
+                hours=24
+            )
+        else:
+            end = datetime.combine(to_settlement_date, datetime.min.time())
+    start = convert_to_utc(convert_to_local(start))
+    end = convert_to_utc(convert_to_local(end))
     ts_list = [
         start + timedelta(minutes=i * 30)
         for i in range(0, int((end - start).total_seconds() / 1800))

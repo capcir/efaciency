@@ -86,17 +86,11 @@ def efa_block_range(
     Returns:
         list of settlement periods
     """
-    start = convert_to_local(
-        datetime.combine(from_efa_date, datetime.min.time()) - timedelta(hours=1)
-    )
+    start = datetime.combine(from_efa_date, datetime.min.time()) - timedelta(hours=1)
     if inclusive:
-        end = convert_to_local(
-            datetime.combine(to_efa_date, datetime.min.time()) + timedelta(hours=23)
-        )
+        end = datetime.combine(to_efa_date, datetime.min.time()) + timedelta(hours=23)
     else:
-        end = convert_to_local(
-            datetime.combine(to_efa_date, datetime.min.time()) - timedelta(hours=1)
-        )
+        end = datetime.combine(to_efa_date, datetime.min.time()) - timedelta(hours=1)
     ts_list = [
         start + timedelta(hours=i * 4)
         for i in range(0, int((end - start).total_seconds() / (3600 * 4)))

@@ -23,7 +23,7 @@ datetime.datetime(2023, 7, 1, 11, 30, tzinfo=<DstTzInfo 'Europe/London' BST+1:00
 Create ranges of half-hour granularity for all SPs in between two dates.
 ```python
 >>> from datetime import date
->>> from efaciency import SettlementPeriod
+>>> from efaciency import settlement_period_range
 >>> sp_range = settlement_period_range(
 ...     from_efa_date=date(2023, 7, 1),
 ...     to_efa_date=date(2023, 7, 2),
