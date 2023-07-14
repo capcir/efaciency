@@ -3,3 +3,4 @@ coverage
 flit
 pytest
 pytz
+ruff
