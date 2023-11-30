@@ -1,14 +1,14 @@
 """efaciency block"""
 
 from datetime import date, datetime, timedelta
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 from efaciency.utils import (
     convert_to_local,
     get_efa_block,
     get_efa_date,
-    get_efa_start_time,
     get_efa_end_time,
+    get_efa_start_time,
 )
 
 
