@@ -1,6 +1,7 @@
-"""An easy way to nagivate EFA days and settlement periods in GB electricity trading."""
+"""An easy way to nagivate EFA blocks and settlement periods in GB electricity trading."""
 
-__version__ = "0.2.0"
+from efaciency import block, sp
 
-from efaciency.block import EFABlock, efa_block_range
-from efaciency.settlement_period import SettlementPeriod, settlement_period_range
+__version__ = "0.3.0"
+
+__all__ = ("block", "sp")
