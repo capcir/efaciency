@@ -29,8 +29,8 @@ def to_start_ts(efa_block: int, efa_date: date | None = None) -> datetime:
     """
     assert 1 <= efa_block <= 6, "EFA block must be between 1 and 6."
     efa_date = efa_date or date.today()
-    t0 = datetime.combine(efa_date - timedelta(days=1), time(23))
-    return convert_to_local(t0 + timedelta(hours=4 * (efa_block - 1)))
+    t0 = convert_to_local(datetime.combine(efa_date - timedelta(days=1), time(23)))
+    return t0 + timedelta(hours=4 * (efa_block - 1))
 
 
 def to_end_ts(efa_block: int, efa_date: date | None = None) -> datetime:
@@ -45,5 +45,5 @@ def to_end_ts(efa_block: int, efa_date: date | None = None) -> datetime:
     """
     assert 1 <= efa_block <= 6, "EFA block must be between 1 and 6."
     efa_date = efa_date or date.today()
-    t0 = datetime.combine(efa_date - timedelta(days=1), time(23))
-    return convert_to_local(t0 + timedelta(hours=4 * efa_block))
+    t0 = convert_to_local(datetime.combine(efa_date - timedelta(days=1), time(23)))
+    return t0 + timedelta(hours=4 * efa_block)

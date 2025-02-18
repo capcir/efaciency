@@ -1,4 +1,4 @@
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -6,6 +6,7 @@ import pytest
 import efaciency
 
 _tz = ZoneInfo("Europe/London")
+_utc = ZoneInfo("UTC")
 
 
 def test_sp_from_ts():
@@ -61,7 +62,7 @@ def test_sp_from_ts_on_dst_transitions():
 
 
 def test_sp_from_utc_ts():
-    t0 = datetime.combine(date(2025, 1, 1), time.min, UTC)
+    t0 = datetime.combine(date(2025, 1, 1), time.min, _utc)
     for i in range(1, 49):
         ts = t0 + timedelta(minutes=30 * (i - 1))
         assert efaciency.sp.from_ts(ts) == i
