@@ -9,7 +9,7 @@ _gb_tz = ZoneInfo("Europe/London")
 
 def convert_to_local(ts: datetime) -> datetime:
     if ts.tzinfo is None:
-        ts.replace(tzinfo=_gb_tz)
+        return ts.replace(tzinfo=_gb_tz)
     return ts.astimezone(_gb_tz)
 
 
