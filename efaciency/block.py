@@ -1,9 +1,8 @@
 """Convert EFA blocks to and from timestamps."""
 
 from datetime import date, datetime, time, timedelta
-from zoneinfo import ZoneInfo
 
-_gb_tz = ZoneInfo("Europe/London")
+from efaciency.utils import convert_to_local
 
 
 def from_ts(ts: datetime) -> int:
@@ -15,7 +14,7 @@ def from_ts(ts: datetime) -> int:
     Returns:
         int: EFA block number (1-6)
     """
-    return int((ts.astimezone(_gb_tz) + timedelta(hours=1)).hour / 4) + 1
+    return int((convert_to_local(ts) + timedelta(hours=1)).hour / 4) + 1
 
 
 def to_start_ts(efa_block: int, efa_date: date | None = None) -> datetime:
@@ -31,7 +30,7 @@ def to_start_ts(efa_block: int, efa_date: date | None = None) -> datetime:
     assert 1 <= efa_block <= 6, "EFA block must be between 1 and 6."
     efa_date = efa_date or date.today()
     t0 = datetime.combine(efa_date - timedelta(days=1), time(23))
-    return (t0 + timedelta(hours=4 * (efa_block - 1))).astimezone(_gb_tz)
+    return convert_to_local(t0 + timedelta(hours=4 * (efa_block - 1)))
 
 
 def to_end_ts(efa_block: int, efa_date: date | None = None) -> datetime:
@@ -47,4 +46,4 @@ def to_end_ts(efa_block: int, efa_date: date | None = None) -> datetime:
     assert 1 <= efa_block <= 6, "EFA block must be between 1 and 6."
     efa_date = efa_date or date.today()
     t0 = datetime.combine(efa_date - timedelta(days=1), time(23))
-    return (t0 + timedelta(hours=4 * efa_block)).astimezone(_gb_tz)
+    return convert_to_local(t0 + timedelta(hours=4 * efa_block))

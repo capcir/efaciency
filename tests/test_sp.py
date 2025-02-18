@@ -9,14 +9,14 @@ _tz = ZoneInfo("Europe/London")
 
 
 def test_sp_from_ts():
-    t0 = datetime.combine(date(2025, 1, 1), time(0))
+    t0 = datetime.combine(date(2025, 1, 1), time.min)
     for i in range(1, 49):
         ts = t0 + timedelta(minutes=30 * (i - 1))
         assert efaciency.sp.from_ts(ts) == i
 
 
 def test_sp_to_ts():
-    t0 = datetime.combine(date.today(), time(0))
+    t0 = datetime.combine(date.today(), time.min)
     for i in range(1, 49):
         ts = t0 + timedelta(minutes=30 * (i - 1))
         assert efaciency.sp.to_ts(i) == ts.astimezone(_tz)
@@ -24,20 +24,20 @@ def test_sp_to_ts():
 
 def test_sp_to_ts_with_date():
     assert efaciency.sp.to_ts(3, date(2025, 3, 30)) == datetime.combine(
-        date(2025, 3, 30), time(2)
-    ).astimezone(_tz)
+        date(2025, 3, 30), time(2), _tz
+    )
     assert efaciency.sp.to_ts(46, date(2025, 3, 30)) == datetime.combine(
-        date(2025, 3, 30), time(23, 30)
-    ).astimezone(_tz)
+        date(2025, 3, 30), time(23, 30), _tz
+    )
     assert efaciency.sp.to_ts(3, date(2025, 10, 26)) == datetime.combine(
-        date(2025, 10, 26), time(1)
-    ).astimezone(_tz)
+        date(2025, 10, 26), time(1), _tz
+    )
     assert efaciency.sp.to_ts(6, date(2025, 10, 26)) == datetime.combine(
-        date(2025, 10, 26), time(1, 30)
-    ).replace(fold=1).astimezone(_tz)
+        date(2025, 10, 26), time(1, 30), _tz
+    ).replace(fold=1)
     assert efaciency.sp.to_ts(50, date(2025, 10, 26)) == datetime.combine(
-        date(2025, 10, 26), time(23, 30)
-    ).astimezone(_tz)
+        date(2025, 10, 26), time(23, 30), _tz
+    )
 
 
 def test_sp_to_ts_assertion_errors():
