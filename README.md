@@ -2,13 +2,14 @@
 
 ![Tests](https://github.com/github/docs/actions/workflows/test.yml/badge.svg)
 ![PyPi](https://img.shields.io/pypi/v/efaciency)
-
+![Coverage](https://img.shields.io/badge/coverage-100-green)
 
 A package to simplify working with [EFA](https://en.wikipedia.org/wiki/Electricity_Forward_Agreement) blocks and settlement periods in the GB electricity trading system.
 
 ## Installation
 
 This package can be installed via pip:
+
 ```bash
 $ pip install efaciency
 ```
@@ -17,73 +18,60 @@ $ pip install efaciency
 
 ### Settlement periods
 
-Define a settlement period and get the corresponding half-hour datetime.
+Get the starting timestamp for a settlement period.
+
 ```python
->>> from datetime import date
->>> from efaciency import SettlementPeriod
->>> sp = SettlementPeriod(settlement_date=date(2023, 7, 1), settlement_period=24)
->>> sp["ts"]
-datetime.datetime(2023, 7, 1, 11, 30, tzinfo=<DstTzInfo 'Europe/London' BST+1:00:00 DST>)
+>>> from datetime import date, datetime
+>>> import efaciency
+
+>>> efaciency.sp.to_ts(settlement_period=4)  # defaults to today as settlement date
+datetime.datetime(2025, 2, 18, 1, 30, tzinfo=<DstTzInfo 'Europe/London' GMT0:00:00 STD>)
+
+>>> efaciency.sp.to_ts(settlement_period=13, settlement_date=date(2025, 5, 23))
+datetime.datetime(2025, 5, 23, 6, 0, tzinfo=<DstTzInfo 'Europe/London' BST+1:00:00 DST>)
 ```
 
-Get the corresponding EFA information and settlement information for a given timestamp.
-```python
->>> from datetime import datetime
->>> from efaciency import SettlementPeriod
->>> sp = SettlementPeriod(ts=datetime(2023, 7, 1, 11, 30))
->>> sp
-{
-    'settlement_date': datetime.date(2023, 7, 1)
-    'settlement_period': 24,
-    'ts': datetime.datetime(2023, 7, 1, 11, 30, tzinfo=<DstTzInfo 'Europe/London' BST+1:00:00 DST>),
-    'efa_date': datetime.date(2023, 7, 1),
-    'efa_block': 4,
-}
-```
+You can also get the settlement for a given timestamp:
 
-Create half-hourly range for all SPs in between two dates.
 ```python
->>> from datetime import date
->>> from efaciency import settlement_period_range
->>> sp_range = settlement_period_range(
-...     from_efa_date=date(2023, 7, 1),
-...     to_efa_date=date(2023, 7, 2),
-... )
->>> sp_range[0]
-{
-    'settlement_date': datetime.date(2023, 6, 30)
-    'settlement_period': 47,
-    'ts': datetime.datetime(2023, 6, 30, 23, 0, tzinfo=<DstTzInfo 'Europe/London' BST+1:00:00 DST>),
-    'efa_date': datetime.date(2023, 7, 1),
-    'efa_block': 1
-}
+>>> efaciency.sp.from_ts(ts=datetime(2025, 1, 12, 17, 30))
+36
 ```
 
 ### EFA blocks
 
-Define EFA blocks and get the corresponding start and end datetimes.
+Get the starting and ending timestamp for an EFA block.
+
 ```python
->>> from datetime import date
->>> from efaciency import EFABlock
->>> efa = EFABlock(efa_date=date(2023, 7, 1), efa_block=3)
->>> efa["start_ts"].strftime("%Y-%m-%d %H:%M")
-'2023-07-01 07:00'
->>> efa["end_ts"].strftime("%Y-%m-%d %H:%M")
-'2023-07-01 11:00'
+>>> from datetime import date, datetime
+>>> import efaciency
+
+>>> efaciency.block.to_start_ts(efa_block=3)  # defaults to today as EFA date
+datetime.datetime(2025, 2, 18, 7, 0, tzinfo=<DstTzInfo 'Europe/London' GMT0:00:00 STD>)
+
+>>> efaciency.block.to_start_ts(efa_block=1, efa_date=date(2025, 5, 23))
+datetime.datetime(2025, 5, 22, 23, 0, tzinfo=<DstTzInfo 'Europe/London' BST+1:00:00 DST>)
 ```
 
-Create a range of all EFA blocks between two dates.
+You can also get the EFA block for a given timestamp:
+
 ```python
->>> from datetime import date
->>> from efaciency import efa_block_range
->>> efa_range = efa_block_range(date(2023, 7, 1), date(2023, 7, 2))
->>> efa_range[0]
-{
-    'efa_date': datetime.date(2023, 7, 1),
-    'efa_block': 1,
-    'start_ts': datetime.datetime(2023, 6, 30, 23, 0, tzinfo=<DstTzInfo 'Europe/London' BST+1:00:00 DST>),
-    'end_ts': datetime.datetime(2023, 7, 1, 3, 0, tzinfo=<DstTzInfo 'Europe/London' BST+1:00:00 DST>),
-}
+>>> efaciency.block.from_ts(ts=datetime(2025, 1, 12, 17, 30))
+5
+```
+
+### What about clock change?
+
+If no timezone is provided, `efaciency` always assumes `Europe/London` timezone.
+
+On clock change days, a tz-aware datetime must be passed or the `fold` [parameter](https://docs.python.org/3/library/datetime.html#datetime.datetime.fold) must be used.
+
+```python
+>>> efaciency.sp.from_ts(datetime(2025, 10, 26, 1))
+3
+
+>>> efaciency.sp.from_ts(datetime(2025, 10, 26, 1).replace(fold=1))
+5
 ```
 
 ## Contribution

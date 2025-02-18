@@ -1,40 +1,59 @@
-from datetime import date, datetime
+from datetime import date, datetime, time, timedelta
+from zoneinfo import ZoneInfo
+
+import pytest
 
 import efaciency
 
+_tz = ZoneInfo("Europe/London")
 
-def test_efa_block_creation():
-    b1 = efaciency.EFABlock(
-        efa_date=date(2023, 7, 1),
-        efa_block=3,
+
+def test_efa_block_from_ts():
+    t0 = datetime.combine(date(2025, 1, 1), time(23))
+    for i in range(24):
+        ts = t0 + timedelta(hours=i)
+        assert efaciency.block.from_ts(ts) == int(i / 4) + 1
+
+
+def test_efa_block_to_start_ts():
+    assert efaciency.block.to_start_ts(1) == datetime.combine(
+        date.today() - timedelta(days=1), time(23)
+    ).astimezone(_tz)
+    assert efaciency.block.to_start_ts(2) == datetime.combine(date.today(), time(3), _tz)
+    assert efaciency.block.to_start_ts(3) == datetime.combine(date.today(), time(7), _tz)
+    assert efaciency.block.to_start_ts(4) == datetime.combine(date.today(), time(11), _tz)
+    assert efaciency.block.to_start_ts(5) == datetime.combine(date.today(), time(15), _tz)
+    assert efaciency.block.to_start_ts(6) == datetime.combine(date.today(), time(19), _tz)
+
+
+def test_efa_block_to_end_ts():
+    assert efaciency.block.to_end_ts(1) == datetime.combine(date.today(), time(3), _tz)
+    assert efaciency.block.to_end_ts(2) == datetime.combine(date.today(), time(7), _tz)
+    assert efaciency.block.to_end_ts(3) == datetime.combine(date.today(), time(11), _tz)
+    assert efaciency.block.to_end_ts(4) == datetime.combine(date.today(), time(15), _tz)
+    assert efaciency.block.to_end_ts(5) == datetime.combine(date.today(), time(19), _tz)
+    assert efaciency.block.to_end_ts(6) == datetime.combine(date.today(), time(23), _tz)
+
+
+def test_efa_block_to_ts_with_date():
+    assert efaciency.block.to_start_ts(efa_block=1, efa_date=date(2025, 3, 30)) == datetime.combine(
+        date(2025, 3, 29), time(23), _tz
     )
-    b2 = efaciency.EFABlock(start_ts=datetime(2023, 7, 1, 7))
-    assert b1 == b2
-
-
-def test_efa_block_range():
-    ebr = efaciency.efa_block_range(
-        from_efa_date=date(2023, 7, 1),
-        to_efa_date=date(2023, 7, 2),
+    assert efaciency.block.to_end_ts(efa_block=1, efa_date=date(2025, 3, 30)) == datetime.combine(
+        date(2025, 3, 30), time(3), _tz
     )
-    assert len(ebr) == 6 * 2
-    ebr = efaciency.efa_block_range(
-        from_efa_date=date(2023, 7, 1), to_efa_date=date(2023, 7, 2), inclusive=False
+    assert efaciency.block.to_start_ts(
+        efa_block=1, efa_date=date(2025, 10, 26)
+    ) == datetime.combine(date(2025, 10, 25), time(23), _tz)
+    assert efaciency.block.to_end_ts(efa_block=1, efa_date=date(2025, 10, 26)) == datetime.combine(
+        date(2025, 10, 26), time(3), _tz
     )
-    assert len(ebr) == 6
 
 
-def test_efa_block_range_spring_dst():
-    ebr = efaciency.efa_block_range(
-        from_efa_date=date(2023, 3, 26),
-        to_efa_date=date(2023, 3, 26),
-    )
-    assert len(ebr) == 6
-
-
-def test_efa_block_range_autumn_dst():
-    ebr = efaciency.efa_block_range(
-        from_efa_date=date(2023, 10, 29),
-        to_efa_date=date(2023, 10, 29),
-    )
-    assert len(ebr) == 6
+def test_efa_block_to_ts_assertion_error():
+    with pytest.raises(AssertionError) as e:
+        efaciency.block.to_start_ts(efa_block=0)
+    assert e.value.args[0] == "EFA block must be between 1 and 6."
+    with pytest.raises(AssertionError) as e:
+        efaciency.block.to_end_ts(efa_block=7)
+    assert e.value.args[0] == "EFA block must be between 1 and 6."
