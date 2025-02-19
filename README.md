@@ -1,7 +1,7 @@
 # efaciency
 
 ![Tests](https://github.com/github/docs/actions/workflows/test.yml/badge.svg)
-![PyPi](https://img.shields.io/pypi/v/efaciency)
+[![PyPi](https://img.shields.io/pypi/v/efaciency)](https://pypi.org/project/efaciency)
 ![Coverage](https://img.shields.io/badge/coverage-100-green)
 
 A package to simplify working with [EFA](https://en.wikipedia.org/wiki/Electricity_Forward_Agreement) blocks and settlement periods in the GB electricity trading system.
@@ -25,10 +25,10 @@ Get the starting timestamp for a settlement period.
 >>> import efaciency
 
 >>> efaciency.sp.to_ts(settlement_period=4)  # defaults to today as settlement date
-datetime.datetime(2025, 2, 18, 1, 30, tzinfo=<DstTzInfo 'Europe/London' GMT0:00:00 STD>)
+datetime.datetime(2025, 2, 18, 1, 30, tzinfo=zoneinfo.ZoneInfo(key='Europe/London'))
 
 >>> efaciency.sp.to_ts(settlement_period=13, settlement_date=date(2025, 5, 23))
-datetime.datetime(2025, 5, 23, 6, 0, tzinfo=<DstTzInfo 'Europe/London' BST+1:00:00 DST>)
+datetime.datetime(2025, 5, 23, 6, 0, tzinfo=zoneinfo.ZoneInfo(key='Europe/London'))
 ```
 
 You can also get the settlement for a given timestamp:
@@ -47,10 +47,10 @@ Get the starting and ending timestamp for an EFA block.
 >>> import efaciency
 
 >>> efaciency.block.to_start_ts(efa_block=3)  # defaults to today as EFA date
-datetime.datetime(2025, 2, 18, 7, 0, tzinfo=<DstTzInfo 'Europe/London' GMT0:00:00 STD>)
+datetime.datetime(2025, 2, 18, 7, 0, tzinfo=zoneinfo.ZoneInfo(key='Europe/London'))
 
 >>> efaciency.block.to_start_ts(efa_block=1, efa_date=date(2025, 5, 23))
-datetime.datetime(2025, 5, 22, 23, 0, tzinfo=<DstTzInfo 'Europe/London' BST+1:00:00 DST>)
+datetime.datetime(2025, 5, 22, 23, 0, tzinfo=zoneinfo.ZoneInfo(key='Europe/London'))
 ```
 
 You can also get the EFA block for a given timestamp:

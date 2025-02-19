@@ -38,6 +38,7 @@ def to_ts(settlement_period: int, settlement_date: datetime | None = None) -> da
     """
     settlement_date = settlement_date or date.today()
     offset = timedelta(0)
+    fold = 0
     if settlement_date in dst_transition_dates():
         if settlement_date.month > 6:
             assert 1 <= settlement_period <= 50, (
@@ -45,6 +46,8 @@ def to_ts(settlement_period: int, settlement_date: datetime | None = None) -> da
             )
             if settlement_period >= 5:
                 offset = -timedelta(hours=1)
+            if settlement_period in [5, 6]:
+                fold = 1
         else:
             assert 1 <= settlement_period <= 46, (
                 "SP must be between 1 and 46 (spring DST transition)."
@@ -55,4 +58,4 @@ def to_ts(settlement_period: int, settlement_date: datetime | None = None) -> da
         assert 1 <= settlement_period <= 48, "SP must be between 1 and 48."
     t0 = convert_to_local(datetime.combine(settlement_date, time.min))
     sp_ts = t0 + timedelta(minutes=30 * (settlement_period - 1))
-    return sp_ts + offset
+    return (sp_ts + offset).replace(fold=fold)

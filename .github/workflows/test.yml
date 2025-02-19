@@ -1,6 +1,6 @@
 # This workflow will run tests on PRs
 
-name: Tests
+name: Formatting & Tests
 
 on:
   pull_request:
