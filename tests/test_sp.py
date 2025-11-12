@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 import pytest
 
 import efaciency
+from efaciency.sp import AutumnClockChangeError, SettlementPeriodInputError, SpringClockChangeError
 
 _tz = ZoneInfo("Europe/London")
 _utc = ZoneInfo("UTC")
@@ -17,7 +18,7 @@ def test_sp_from_ts():
 
 
 def test_sp_to_ts():
-    t0 = datetime.combine(date.today(), time.min)
+    t0 = datetime.combine(datetime.now(_tz).date(), time.min)
     for i in range(1, 49):
         ts = t0 + timedelta(minutes=30 * (i - 1))
         assert efaciency.sp.to_ts(i) == ts.astimezone(_tz)
@@ -42,23 +43,23 @@ def test_sp_to_ts_with_date():
 
 
 def test_sp_to_ts_assertion_errors():
-    with pytest.raises(AssertionError) as e:
+    with pytest.raises(SettlementPeriodInputError) as e:
         efaciency.sp.to_ts(0)
-    assert e.value.args[0] == "SP must be between 1 and 48."
-    with pytest.raises(AssertionError) as e:
+    assert e.value.args[0] == "SP must be between 1 and 48, not 0."
+    with pytest.raises(SpringClockChangeError) as e:
         efaciency.sp.to_ts(47, date(2025, 3, 30))
-    assert e.value.args[0] == "SP must be between 1 and 46 (spring DST transition)."
-    with pytest.raises(AssertionError) as e:
+    assert e.value.args[0] == "SP must be between 1 and 46, not 47."
+    with pytest.raises(AutumnClockChangeError) as e:
         efaciency.sp.to_ts(51, date(2025, 10, 26))
-    assert e.value.args[0] == "SP must be between 1 and 50 (autumn DST transition)."
+    assert e.value.args[0] == "SP must be between 1 and 50, not 51."
 
 
 def test_sp_from_ts_on_dst_transitions():
-    assert efaciency.sp.from_ts(datetime(2025, 3, 30, 1)) == 3
-    assert efaciency.sp.from_ts(datetime(2025, 3, 30, 23, 30)) == 46
-    assert efaciency.sp.from_ts(datetime(2025, 10, 26, 1)) == 3
-    assert efaciency.sp.from_ts(datetime(2025, 10, 26, 1).replace(fold=1)) == 5
-    assert efaciency.sp.from_ts(datetime(2025, 10, 26, 23)) == 49
+    assert efaciency.sp.from_ts(datetime(2025, 3, 30, 1)) == 3  # noqa: DTZ001
+    assert efaciency.sp.from_ts(datetime(2025, 3, 30, 23, 30)) == 46  # noqa: DTZ001
+    assert efaciency.sp.from_ts(datetime(2025, 10, 26, 1)) == 3  # noqa: DTZ001
+    assert efaciency.sp.from_ts(datetime(2025, 10, 26, 1).replace(fold=1)) == 5  # noqa: DTZ001
+    assert efaciency.sp.from_ts(datetime(2025, 10, 26, 23)) == 49  # noqa: DTZ001
 
 
 def test_sp_from_utc_ts():

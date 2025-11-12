@@ -62,7 +62,7 @@ You can also get the EFA block for a given timestamp:
 
 ### What about clock change?
 
-If no timezone is provided, `efaciency` always assumes `Europe/London` timezone.
+If a datetime with no timezone is provided, `efaciency` always assumes `Europe/London` timezone.
 
 On clock change days, a tz-aware datetime must be passed or the `fold` [parameter](https://docs.python.org/3/library/datetime.html#datetime.datetime.fold) must be used.
 
@@ -72,6 +72,14 @@ On clock change days, a tz-aware datetime must be passed or the `fold` [paramete
 
 >>> efaciency.sp.from_ts(datetime(2025, 10, 26, 1).replace(fold=1))
 5
+```
+
+## CLI
+
+You can also use the efaciency CLI:
+
+```bash
+efaciency --help
 ```
 
 ## Contribution

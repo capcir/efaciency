@@ -2,7 +2,15 @@
 
 from datetime import date, datetime, time, timedelta
 
-from efaciency.utils import convert_to_local
+from efaciency.utils import GB_TIMEZONE, convert_to_local
+
+
+class EFABlockInputError(Exception):
+    """Incorrect EFA block input error."""
+
+    def __init__(self, number: int) -> Exception:
+        """Incorrect EFA block input error."""
+        super().__init__(f"EFA block must be between 1 and 6, not {number}.")
 
 
 def from_ts(ts: datetime) -> int:
@@ -27,9 +35,10 @@ def to_start_ts(efa_block: int, efa_date: date | None = None) -> datetime:
     Returns:
         datetime: start of the block 4 hour period
     """
-    assert 1 <= efa_block <= 6, "EFA block must be between 1 and 6."
-    efa_date = efa_date or date.today()
-    t0 = convert_to_local(datetime.combine(efa_date - timedelta(days=1), time(23)))
+    if not 1 <= efa_block <= 6:
+        raise EFABlockInputError(efa_block)
+    efa_date = efa_date or datetime.now(GB_TIMEZONE).date()
+    t0 = datetime.combine(efa_date - timedelta(days=1), time(23), GB_TIMEZONE)
     return t0 + timedelta(hours=4 * (efa_block - 1))
 
 
@@ -43,7 +52,8 @@ def to_end_ts(efa_block: int, efa_date: date | None = None) -> datetime:
     Returns:
         datetime: end of the block 4 hour period
     """
-    assert 1 <= efa_block <= 6, "EFA block must be between 1 and 6."
-    efa_date = efa_date or date.today()
-    t0 = convert_to_local(datetime.combine(efa_date - timedelta(days=1), time(23)))
+    if not 1 <= efa_block <= 6:
+        raise EFABlockInputError(efa_block)
+    efa_date = efa_date or datetime.now(GB_TIMEZONE).date()
+    t0 = datetime.combine(efa_date - timedelta(days=1), time(23), GB_TIMEZONE)
     return t0 + timedelta(hours=4 * efa_block)

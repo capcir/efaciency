@@ -1,8 +1,33 @@
 """Convert settlement periods to and from timestamps."""
 
-from datetime import date, datetime, time, timedelta
+from datetime import datetime, time, timedelta
 
-from efaciency.utils import convert_to_local, dst_transition_dates
+from efaciency.utils import GB_TIMEZONE, convert_to_local, dst_transition_dates
+
+
+class SettlementPeriodInputError(Exception):
+    """Incorrect settlement period] input error."""
+
+    def __init__(self, number: int, message: str | None = None) -> Exception:
+        """Incorrect settlement period] input error."""
+        message = message or "SP must be between 1 and 48"
+        super().__init__(f"{message}, not {number}.")
+
+
+class AutumnClockChangeError(SettlementPeriodInputError):
+    """Incorrect settlement period] input error during autumn clock change."""
+
+    def __init__(self, number: int) -> SettlementPeriodInputError:
+        """Incorrect settlement period] input error during autumn clock change."""
+        super().__init__(message="SP must be between 1 and 50", number=number)
+
+
+class SpringClockChangeError(SettlementPeriodInputError):
+    """Incorrect settlement period] input error during spring clock change."""
+
+    def __init__(self, number: int) -> SettlementPeriodInputError:
+        """Incorrect settlement period] input error during spring clock change."""
+        super().__init__(message="SP must be between 1 and 46", number=number)
 
 
 def from_ts(ts: datetime) -> int:
@@ -36,26 +61,24 @@ def to_ts(settlement_period: int, settlement_date: datetime | None = None) -> da
     Returns:
         datetime: start of the settlement period half-hour
     """
-    settlement_date = settlement_date or date.today()
+    settlement_date = settlement_date or datetime.now(GB_TIMEZONE).date()
     offset = timedelta(0)
     fold = 0
     if settlement_date in dst_transition_dates():
         if settlement_date.month > 6:
-            assert 1 <= settlement_period <= 50, (
-                "SP must be between 1 and 50 (autumn DST transition)."
-            )
+            if not 1 <= settlement_period <= 50:
+                raise AutumnClockChangeError(settlement_period)
             if settlement_period >= 5:
                 offset = -timedelta(hours=1)
             if settlement_period in [5, 6]:
                 fold = 1
         else:
-            assert 1 <= settlement_period <= 46, (
-                "SP must be between 1 and 46 (spring DST transition)."
-            )
+            if not 1 <= settlement_period <= 46:
+                raise SpringClockChangeError(settlement_period)
             if settlement_period >= 3:
                 offset = timedelta(hours=1)
-    else:
-        assert 1 <= settlement_period <= 48, "SP must be between 1 and 48."
-    t0 = convert_to_local(datetime.combine(settlement_date, time.min))
+    elif not 1 <= settlement_period <= 48:
+        raise SettlementPeriodInputError(settlement_period)
+    t0 = datetime.combine(settlement_date, time.min, GB_TIMEZONE)
     sp_ts = t0 + timedelta(minutes=30 * (settlement_period - 1))
     return (sp_ts + offset).replace(fold=fold)
