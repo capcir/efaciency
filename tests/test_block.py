@@ -18,8 +18,8 @@ def test_efa_block_from_ts():
 
 def test_efa_block_to_start_ts():
     assert efaciency.block.to_start_ts(1) == datetime.combine(
-        datetime.now(_tz).date() - timedelta(days=1), time(23)
-    ).astimezone(_tz)
+        datetime.now(_tz).date() - timedelta(days=1), time(23), _tz
+    )
     assert efaciency.block.to_start_ts(2) == datetime.combine(
         datetime.now(_tz).date(), time(3), _tz
     )

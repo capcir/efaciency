@@ -10,26 +10,30 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v7
+    - name: Install dependencies
+      run: uv sync --dev
     - name: Run linter
-      run: uv tool run ruff check
+      run: uvx ruff check --output-format concise
     - name: Run formatter
-      run: uv tool run ruff format
+      run: uvx ruff format --check
+    - name: Run type checker
+      run: uvx ty check --output-format concise
   tests:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Install uv and set the Python version
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v7
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install project
-      run: uv sync
+      run: uv sync --dev
     - name: Run tests
       run: uv run pytest

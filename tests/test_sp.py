@@ -18,10 +18,10 @@ def test_sp_from_ts():
 
 
 def test_sp_to_ts():
-    t0 = datetime.combine(datetime.now(_tz).date(), time.min)
+    t0 = datetime.combine(datetime.now(_tz).date(), time.min, _tz)
     for i in range(1, 49):
         ts = t0 + timedelta(minutes=30 * (i - 1))
-        assert efaciency.sp.to_ts(i) == ts.astimezone(_tz)
+        assert efaciency.sp.to_ts(i) == ts
 
 
 def test_sp_to_ts_with_date():

@@ -1,6 +1,6 @@
 """Convert settlement periods to and from timestamps."""
 
-from datetime import datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 
 from efaciency.utils import GB_TIMEZONE, convert_to_local, dst_transition_dates
 
@@ -8,7 +8,7 @@ from efaciency.utils import GB_TIMEZONE, convert_to_local, dst_transition_dates
 class SettlementPeriodInputError(Exception):
     """Incorrect settlement period] input error."""
 
-    def __init__(self, number: int, message: str | None = None) -> Exception:
+    def __init__(self, number: int, message: str | None = None) -> None:
         """Incorrect settlement period] input error."""
         message = message or "SP must be between 1 and 48"
         super().__init__(f"{message}, not {number}.")
@@ -17,7 +17,7 @@ class SettlementPeriodInputError(Exception):
 class AutumnClockChangeError(SettlementPeriodInputError):
     """Incorrect settlement period] input error during autumn clock change."""
 
-    def __init__(self, number: int) -> SettlementPeriodInputError:
+    def __init__(self, number: int) -> None:
         """Incorrect settlement period] input error during autumn clock change."""
         super().__init__(message="SP must be between 1 and 50", number=number)
 
@@ -25,7 +25,7 @@ class AutumnClockChangeError(SettlementPeriodInputError):
 class SpringClockChangeError(SettlementPeriodInputError):
     """Incorrect settlement period] input error during spring clock change."""
 
-    def __init__(self, number: int) -> SettlementPeriodInputError:
+    def __init__(self, number: int) -> None:
         """Incorrect settlement period] input error during spring clock change."""
         super().__init__(message="SP must be between 1 and 46", number=number)
 
@@ -43,7 +43,7 @@ def from_ts(ts: datetime) -> int:
     """
     local_ts = convert_to_local(ts)
     if local_ts.date() in dst_transition_dates():
-        utcoffset = local_ts.utcoffset().seconds / 3600
+        utcoffset = local_ts.utcoffset().seconds / 3600  # ty: ignore[unresolved-attribute]
         if local_ts.date().month > 6 and utcoffset == 0:
             return int(local_ts.hour * 2 + local_ts.minute / 30 + 3)
         if local_ts.date().month < 6 and utcoffset == 1:
@@ -51,7 +51,7 @@ def from_ts(ts: datetime) -> int:
     return int(local_ts.hour * 2 + local_ts.minute / 30 + 1)
 
 
-def to_ts(settlement_period: int, settlement_date: datetime | None = None) -> datetime:
+def to_ts(settlement_period: int, settlement_date: date | None = None) -> datetime:
     """Get timestamp from a given settlement period and settlement date (if given).
 
     Args:
@@ -61,7 +61,8 @@ def to_ts(settlement_period: int, settlement_date: datetime | None = None) -> da
     Returns:
         datetime: start of the settlement period half-hour
     """
-    settlement_date = settlement_date or datetime.now(GB_TIMEZONE).date()
+    if settlement_date is None:
+        settlement_date = datetime.now(GB_TIMEZONE).date()
     offset = timedelta(0)
     fold = 0
     if settlement_date in dst_transition_dates():
