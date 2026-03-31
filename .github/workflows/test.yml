@@ -13,6 +13,8 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+    - name: Install dependencies
+      run: uv sync --dev
     - name: Run linter
       run: uvx ruff check --output-format concise
     - name: Run formatter
@@ -32,6 +34,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install project
-      run: uv sync
+      run: uv sync --dev
     - name: Run tests
       run: uv run pytest
