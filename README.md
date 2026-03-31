@@ -74,6 +74,17 @@ On clock change days, a tz-aware datetime must be passed or the `fold` [paramete
 5
 ```
 
+### Usage with Pandas or Polars
+
+Examples of `efaciency` usage with Pandas or Polars dataframes:
+
+```python
+# pandas
+df["sp"] = df["ts"].apply(efaciency.sp.from_ts)
+# polars
+df.with_columns(pl.col("ts").map_elements(efaciency.sp.from_ts, return_dtype=pl.Int64).alias("sp"))
+```
+
 ## CLI
 
 You can also use the efaciency CLI:

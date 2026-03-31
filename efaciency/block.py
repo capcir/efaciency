@@ -8,7 +8,7 @@ from efaciency.utils import GB_TIMEZONE, convert_to_local
 class EFABlockInputError(Exception):
     """Incorrect EFA block input error."""
 
-    def __init__(self, number: int) -> Exception:
+    def __init__(self, number: int) -> None:
         """Incorrect EFA block input error."""
         super().__init__(f"EFA block must be between 1 and 6, not {number}.")
 

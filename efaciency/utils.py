@@ -29,5 +29,7 @@ def dst_transition_dates() -> list[date]:
     date_range = [from_date + timedelta(days=i) for i in range((until_date - from_date).days + 1)]
     offsets = {d: datetime.combine(d, time.min, GB_TIMEZONE).utcoffset() for d in date_range}
     return [
-        d0 for d0, d1 in itertools.pairwise(date_range) if (offsets[d0] - offsets[d1]).seconds != 0
+        d0
+        for d0, d1 in itertools.pairwise(date_range)
+        if (offsets[d0] - offsets[d1]).seconds != 0  # ty: ignore[unsupported-operator]
     ]
